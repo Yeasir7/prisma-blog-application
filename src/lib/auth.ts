@@ -17,7 +17,13 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
-  trustedOrigins: ["http://localhost:4000"],
+  trustedOrigins: ["http://localhost:3000"],
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  },
   user: {
     additionalFields: {
       role: {
@@ -39,13 +45,13 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
-     try{
-         const VerificationUrl = `http://localhost:3000/api/auth/verify-email?token=${token}`;
-      const info = await transporter.sendMail({
-        from: '"Prisma blog"<someone@gmail.com>',
-        to: user.email,
-        subject: "Please verify you email",
-        html: `<!DOCTYPE html>
+      try {
+        const VerificationUrl = `http://localhost:3000/api/auth/verify-email?token=${token}`;
+        const info = await transporter.sendMail({
+          from: '"Prisma blog"<someone@gmail.com>',
+          to: user.email,
+          subject: "Please verify you email",
+          html: `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -304,12 +310,12 @@ export const auth = betterAuth({
     </div>
 </body>
 </html>`,
-      });
+        });
 
-      console.log("Message sent:", info.messageId);
-     }catch(err){
+        console.log("Message sent:", info.messageId);
+      } catch (err) {
         console.error(err);
-     }
+      }
     },
   },
 });
